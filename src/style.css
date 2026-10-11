@@ -1,0 +1,26 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: white;
+}
+
+main {
+  height: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 20px;
+  display: flex;
+  justify-content: center; /* Centers horizontally (on the main axis) */
+  align-items: center;
+}
+
+canvas {
+  width: 500px;
+  height: 500px;
+  border: 1px solid #30394a;
+  border-radius: 12px;
+}
