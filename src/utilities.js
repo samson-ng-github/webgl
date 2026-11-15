@@ -53,4 +53,27 @@ const render = (gl, indices) => {
   gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 };
 
-export { createShader, createSphere, render };
+const createPerspectiveMatrix = (fov, aspect, near, far) => {
+  const f = 1 / Math.tan(fov / 2);
+
+  return new Float32Array([
+    f / aspect,
+    0,
+    0,
+    0,
+    0,
+    f,
+    0,
+    0,
+    0,
+    0,
+    (far + near) / (near - far),
+    -1,
+    0,
+    0,
+    (2 * far * near) / (near - far),
+    0,
+  ]);
+};
+
+export { createShader, createSphere, createPerspectiveMatrix,render };

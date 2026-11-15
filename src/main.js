@@ -1,5 +1,10 @@
 import './style.css';
-import { createShader, createSphere, render } from './utilities.js';
+import {
+  createShader,
+  createSphere,
+  createPerspectiveMatrix,
+  render,
+} from './utilities.js';
 
 const canvas = document.querySelector('#canvas');
 const gl = canvas.getContext('webgl2');
@@ -38,7 +43,11 @@ void main() {
 `;
 
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+const fragmentShader = createShader(
+  gl,
+  gl.FRAGMENT_SHADER,
+  fragmentShaderSource,
+);
 const program = gl.createProgram();
 
 gl.attachShader(program, vertexShader);
@@ -55,19 +64,38 @@ gl.useProgram(program);
 
 // Identity matrices
 
-const identityMatrix = new Float32Array([
+const modelMatrix = new Float32Array([
   1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
 ]);
 
-for (const name of ['model', 'view', 'projection']) {
-  const location = gl.getUniformLocation(program, name);
+const viewMatrix = new Float32Array([
+  1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -, 1,
+]);
 
-  gl.uniformMatrix4fv(location, false, identityMatrix);
-}
+const projectionMatrix = createPerspectiveMatrix(
+  Math.PI / 4,
+  canvas.width / canvas.height,
+  0.1,
+  100,
+);
+
+gl.uniformMatrix4fv(
+  gl.getUniformLocation(program, 'model'),
+  false,
+  modelMatrix,
+);
+
+gl.uniformMatrix4fv(gl.getUniformLocation(program, 'view'), false, viewMatrix);
+
+gl.uniformMatrix4fv(
+  gl.getUniformLocation(program, 'projection'),
+  false,
+  projectionMatrix,
+);
 
 // Sphere vertices
 
-const {positions, indices} = createSphere(1, 32, 16);
+const { positions, indices } = createSphere(1, 32, 16);
 
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -75,14 +103,7 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 const positionLocation = gl.getAttribLocation(program, 'position');
 gl.enableVertexAttribArray(positionLocation);
 
-gl.vertexAttribPointer(
-  positionLocation,
-  3,
-  gl.FLOAT,
-  false,
-  0,
-  0,
-);
+gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 
 const indexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
