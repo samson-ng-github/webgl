@@ -23,22 +23,34 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+out vec3 vNormal;
+
 void main() {
     gl_Position =
         projection *
         view *
         model *
         vec4(position, 1.0);
+
+    vNormal = normalize(position);
 }
 `;
 
 const fragmentShaderSource = `#version 300 es
-precision highp float;
+precision mediump float;
 
+in vec3 vNormal;
 out vec4 outColor;
 
 void main() {
-    outColor = vec4(1.0, 0.0, 0.0, 1.0);
+    vec3 normal = normalize(vNormal);
+    vec3 lightDirection = normalize(vec3(-0.5, 0.8, 1.0));
+    float diffuse = max(dot(normal, lightDirection), 0.0);
+    float ambient = 0.15;
+
+    vec3 baseColor = vec3(1.0, 0.0, 0.0);
+    vec3 finalColor = baseColor * (ambient + diffuse * 0.85);
+    outColor = vec4(finalColor, 1.0);
 }
 `;
 
@@ -69,7 +81,7 @@ const modelMatrix = new Float32Array([
 ]);
 
 const viewMatrix = new Float32Array([
-  1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -, 1,
+  1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -3, 1,
 ]);
 
 const projectionMatrix = createPerspectiveMatrix(
